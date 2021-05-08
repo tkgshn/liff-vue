@@ -1,7 +1,9 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld v-if="isLoggedIn" v-bind:msg="'Hello, ' + userName"/>
-  <button class="btn-square" v-if="!isInClient" @click="logout">ログアウト</button>
+  <div>
+    <img alt="Vue logo" src="./assets/logo.png">
+    <HelloWorld v-if="isLoggedIn" v-bind:msg="'Hello, ' + userName"/>
+    <button class="btn-square" v-if="!isInClient" @click="logout">ログアウト</button>
+  </div>
 </template>
 
 <script>
