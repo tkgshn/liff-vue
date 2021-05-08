@@ -1,31 +1,39 @@
 <template>
-  <div>
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld v-if="isLoggedIn" v-bind:msg="'Hello, ' + userName"/>
-    <button class="btn-square" v-if="!isInClient" @click="logout">ログアウト</button>
-  </div>
+<div id='app'>
+  <img class="userIcon" alt="userIcon" :src="userPictureURL" />
+  <input v-model="message" placeholder="送信するメッセージを入力" />
+  <button class="btn-square" v-if="isInClient" @click="sendMessage">
+    メッセージを送信する
+  </button>
+  <HelloWorld v-if="isLoggedIn" v-bind:msg="'Hello, ' + userName" />
+  <button class="btn-square" v-if="!isInClient" @click="logout">
+    ログアウト
+  </button>
+</div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-import liff  from "@line/liff";
+import HelloWorld from "./components/HelloWorld.vue";
+import liff from "@line/liff";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
+    HelloWorld,
   },
   data() {
     return {
       userName: undefined,
+      userPictureURL: undefined,
       isInClient: undefined,
       isLoggedIn: false,
-    }
+      message: "",
+    };
   },
   created() {
     liff
       .init({
-        liffId: process.env.VUE_APP_LIFF_ID
+        liffId: process.env.VUE_APP_LIFF_ID,
       })
       .then(() => {
         this.isLoggedIn = liff.isLoggedIn();
@@ -33,22 +41,39 @@ export default {
           liff.login();
         } else {
           this.isInClient = liff.isInClient();
-          liff.getProfile()
-            .then(profile => {
-              this.userName = profile.displayName;
-            })
+          liff.getProfile().then((profile) => {
+            this.userName = profile.displayName;
+            this.userPictureURL = profile.pictureUrl;
+          });
         }
-      })
+      });
   },
   methods: {
     logout: function () {
+      console.log(this.message);
       if (liff.isLoggedIn()) {
         liff.logout();
         location.reload();
       }
-    }
-  }
-}
+    },
+    sendMessage: function () {
+      liff
+        .sendMessages([
+          {
+            type: "text",
+            text: this.message,
+          },
+        ])
+        .then(() => {
+          console.log("message sent");
+          liff.closeWindow()
+        })
+        .catch((err) => {
+          console.log("error", err);
+        });
+    },
+  },
+};
 </script>
 
 <style>
@@ -60,12 +85,15 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+.userIcon {
+  width: 100%;
+}
 .btn-square {
   display: inline-block;
   padding: 0.5em 1em;
   text-decoration: none;
   background: #42b983;
-  color: #FFF;
+  color: #fff;
   border-bottom: solid 4px #627295;
   border-radius: 3px;
 }
